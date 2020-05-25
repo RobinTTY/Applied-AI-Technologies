@@ -1,0 +1,97 @@
+openapi: 3.0.0
+info:
+  description: Post-it digitalization API
+  version: "1.0.0"
+  title: Post-it digitalization API
+  contact:
+    email: muellerobin95@gmail.com
+  license:
+    name: GNU General Public License v3.0
+    url: 'https://www.gnu.org/licenses/gpl-3.0.en.html'
+    
+# Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/RobinTTYTeam/AppliedAI/1.0.0
+
+paths:
+  /indexPostIts:
+    post:
+      summary: Detects Post-it notes and digitalizes their contents
+      operationId: indexPostIts
+      description: |
+        By passing in the appropriate options, you can digitalize
+        the contents of Post-it notes
+      parameters:
+        - in: query
+          name: pictureLink
+          description: A link to the picture to be digitalized. Only required if no request body is provided.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Picture containing the Post-it notes to digitalize. Only required if no query parameter is provided.
+        required: true
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+              
+      responses:
+        '200':
+          description: Digitalized Post-It notes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostIt'
+        '400':
+          description: Malformed request
+components:
+  schemas:
+    PostIt:
+      type: object
+      required:
+        - id
+        - contents
+        - color
+        - coordinates
+        - width
+        - height
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        contents:
+          type: string
+          example: This is the text of a Post-It.
+        color:
+          type: string
+          example: '#aa43a0'
+        coordinates:
+          $ref: '#/components/schemas/Coordinate'
+        width:
+          type: number
+          format: double
+          example: 25.24
+        height:
+          type: number
+          format: double
+          example: 71.91
+    Coordinate:
+      required:
+        - posX
+        - posY
+        - posZ
+      properties:
+        posX:
+          type: number
+          format: double
+          example: 17.39
+        posY:
+          type: number
+          format: double
+          example: 83.91
