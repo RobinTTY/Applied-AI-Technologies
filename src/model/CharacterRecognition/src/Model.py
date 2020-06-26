@@ -42,17 +42,17 @@ class Model:
 
         # setup optimizer to train NN
         self.batchesTrained = 0
-        self.learningRate = tf.placeholder(tf.float32, shape=[])
-        self.update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+        self.learningRate = tf.compat.v1.placeholder(tf.float32, shape=[])
+        self.update_ops = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.UPDATE_OPS)
         with tf.control_dependencies(self.update_ops):
-            self.optimizer = tf.train.RMSPropOptimizer(self.learningRate).minimize(self.loss)
+            self.optimizer = tf.compat.v1.train.RMSPropOptimizer(self.learningRate).minimize(self.loss)
 
         # initialize TF
         (self.sess, self.saver) = self.setup_tf()
 
     def setup_cnn(self):
         """create CNN layers and return output of these layers"""
-        cnn_in4d = tf.expand_dims(input=self.input_images, axis=3)
+        cnn_in4d = tf.compat.v1.expand_dims(input=self.input_images, axis=3)
 
         # list of parameters for the layers
         kernel_values = [5, 5, 3, 3, 3]
@@ -63,14 +63,14 @@ class Model:
         # create layers
         pool = cnn_in4d  # input to first CNN layer
         for i in range(num_layers):
-            kernel = tf.Variable(
-                tf.random.truncated_normal(
-                    [kernel_values[i], kernel_values[i], feature_values[i], feature_values[i + 1]],
+            kernel = tf.Variable(tf.random.truncated_normal(
+                    [kernel_values[i], kernel_values[i],
+                     feature_values[i], feature_values[i + 1]],
                     stddev=0.1))
-            conv = tf.nn.conv2d(pool, kernel, padding='SAME', strides=(1, 1, 1, 1))
-            conv_norm = tf.layers.batch_normalization(conv, training=self.is_train)
-            relu = tf.nn.relu(conv_norm)
-            pool = tf.nn.max_pool(relu, (1, pool_values[i][0], pool_values[i][1], 1),
+            conv = tf.compat.v1.nn.conv2d(pool, kernel, padding='SAME', strides=(1, 1, 1, 1))
+            conv_norm = tf.compat.v1.layers.batch_normalization(conv, training=self.is_train)
+            relu = tf.compat.v1.nn.relu(conv_norm)
+            pool = tf.compat.v1.nn.max_pool(relu, (1, pool_values[i][0], pool_values[i][1], 1),
                                   (1, stride_values[i][0], stride_values[i][1], 1), 'VALID')
 
         self.cnnOut4d = pool
@@ -81,52 +81,56 @@ class Model:
 
         # basic cells which is used to build RNN
         num_hidden = 256
-        cells = [tf.contrib.rnn.LSTMCell(num_units=num_hidden, state_is_tuple=True) for _ in range(2)]  # 2 layers
+
+        # 2 layers
+        cells = [tf.compat.v1.nn.rnn_cell.LSTMCell(num_units=num_hidden, state_is_tuple=True) for _ in range(2)]
 
         # stack basic cells
-        stacked = tf.contrib.rnn.MultiRNNCell(cells, state_is_tuple=True)
+        stacked = tf.compat.v1.nn.rnn_cell.MultiRNNCell(cells, state_is_tuple=True)
 
         # bidirectional RNN
         # BxTxF -> BxTx2H
 
-        ((fw, bw), _) = tf.nn.bidirectional_dynamic_rnn(cell_fw=stacked, cell_bw=stacked, inputs=rnn_in3d,
-                                                        dtype=rnn_in3d.dtype)
+        ((fw, bw), _) = tf.compat.v1.nn.bidirectional_dynamic_rnn(cell_fw=stacked, cell_bw=stacked, inputs=rnn_in3d,
+                                                                  dtype=rnn_in3d.dtype)
 
         # BxTxH + BxTxH -> BxTx2H -> BxTx1X2H
         concat = tf.expand_dims(tf.concat([fw, bw], 2), 2)
 
         # project output to chars (including blank): BxTx1x2H -> BxTx1xC -> BxTxC
-        kernel = tf.Variable(tf.truncated_normal([1, 1, num_hidden * 2, len(self.charList) + 1], stddev=0.1))
+        kernel = tf.Variable(tf.compat.v1.truncated_normal([1, 1, num_hidden * 2, len(self.charList) + 1], stddev=0.1))
         self.rnnOut3d = tf.squeeze(tf.nn.atrous_conv2d(value=concat, filters=kernel, rate=1, padding='SAME'), axis=[2])
 
     def setup_ctc(self):
         """create CTC loss and decoder and return them"""
         # BxTxC -> TxBxC
-        self.ctcIn3dTBC = tf.transpose(self.rnnOut3d, [1, 0, 2])
+        self.ctcIn3dTBC = tf.compat.v1.transpose(self.rnnOut3d, [1, 0, 2])
         # ground truth text as sparse tensor
-        self.gtTexts = tf.SparseTensor(tf.placeholder(tf.int64, shape=[None, 2]), tf.placeholder(tf.int32, [None]),
-                                       tf.placeholder(tf.int64, [2]))
+        self.gtTexts = tf.compat.v1.SparseTensor(tf.compat.v1.placeholder(tf.int64, shape=[None, 2]),
+                                                 tf.compat.v1.placeholder(tf.int32, [None]),
+                                                 tf.compat.v1.placeholder(tf.int64, [2]))
 
         # calc loss for batch
-        self.seqLen = tf.placeholder(tf.int32, [None])
-        self.loss = tf.reduce_mean(
-            tf.nn.ctc_loss(labels=self.gtTexts, inputs=self.ctcIn3dTBC, sequence_length=self.seqLen,
+        self.seqLen = tf.compat.v1.placeholder(tf.int32, [None])
+        self.loss = tf.compat.v1.reduce_mean(
+            tf.compat.v1.nn.ctc_loss(labels=self.gtTexts, inputs=self.ctcIn3dTBC, sequence_length=self.seqLen,
                            ctc_merge_repeated=True))
 
         # calc loss for each element to compute label probability
-        self.savedCtcInput = tf.placeholder(tf.float32, shape=[Model.maxTextLen, None, len(self.charList) + 1])
-        self.lossPerElement = tf.nn.ctc_loss(labels=self.gtTexts, inputs=self.savedCtcInput,
-                                             sequence_length=self.seqLen, ctc_merge_repeated=True)
+        self.savedCtcInput = tf.compat.v1.placeholder(tf.float32,
+                                                      shape=[Model.maxTextLen, None, len(self.charList) + 1])
+        self.lossPerElement = tf.compat.v1.nn.ctc_loss(labels=self.gtTexts, inputs=self.savedCtcInput,
+                                                       sequence_length=self.seqLen, ctc_merge_repeated=True)
 
         # decoder: either best path decoding or beam search decoding
         if self.decoderType == DecoderType.BestPath:
-            self.decoder = tf.nn.ctc_greedy_decoder(inputs=self.ctcIn3dTBC, sequence_length=self.seqLen)
+            self.decoder = tf.compat.v1.nn.ctc_greedy_decoder(inputs=self.ctcIn3dTBC, sequence_length=self.seqLen)
         elif self.decoderType == DecoderType.BeamSearch:
-            self.decoder = tf.nn.ctc_beam_search_decoder(inputs=self.ctcIn3dTBC, sequence_length=self.seqLen,
+            self.decoder = tf.compat.v1.nn.ctc_beam_search_decoder(inputs=self.ctcIn3dTBC, sequence_length=self.seqLen,
                                                          beam_width=50, merge_repeated=False)
         elif self.decoderType == DecoderType.WordBeamSearch:
             # import compiled word beam search operation (see https://github.com/githubharald/CTCWordBeamSearch)
-            word_beam_search_module = tf.load_op_library('TFWordBeamSearch.so')
+            word_beam_search_module = tf.compat.v1.load_op_library('TFWordBeamSearch.so')
 
             # prepare information about language (dictionary, characters in dataset, characters forming words)
             chars = str().join(self.charList)
@@ -134,20 +138,20 @@ class Model:
             corpus = open('../data/corpus.txt').read()
 
             # decode using the "Words" mode of word beam search
-            self.decoder = word_beam_search_module.word_beam_search(tf.nn.softmax(self.ctcIn3dTBC, dim=2), 50, 'Words',
-                                                                    0.0, corpus.encode('utf8'), chars.encode('utf8'),
-                                                                    word_chars.encode('utf8'))
+            self.decoder = word_beam_search_module.word_beam_search(tf.compat.v1.nn.softmax(self.ctcIn3dTBC, dim=2), 50,
+                                                                    'Words', 0.0, corpus.encode('utf8'),
+                                                                    chars.encode('utf8'), word_chars.encode('utf8'))
 
     def setup_tf(self):
         """initialize TF"""
         print('Python: ' + sys.version)
         print('Tensorflow: ' + tf.__version__)
 
-        sess = tf.Session()  # TF session
+        sess = tf.compat.v1.Session()  # TF session
 
-        saver = tf.train.Saver(max_to_keep=1)  # saver saves model to file
+        saver = tf.compat.v1.train.Saver(max_to_keep=1)  # saver saves model to file
         model_dir = '../model/'
-        latest_snapshot = tf.train.latest_checkpoint(model_dir)  # is there a saved model?
+        latest_snapshot = tf.compat.v1.train.latest_checkpoint(model_dir)  # is there a saved model?
 
         # if model must be restored (for inference), there must be a snapshot
         if self.mustRestore and not latest_snapshot:
@@ -159,7 +163,7 @@ class Model:
             saver.restore(sess, latest_snapshot)
         else:
             print('Init with new values')
-            sess.run(tf.global_variables_initializer())
+            sess.run(tf.compat.v1.global_variables_initializer())
 
         return sess, saver
 

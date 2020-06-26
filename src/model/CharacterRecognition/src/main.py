@@ -4,6 +4,7 @@ from __future__ import print_function
 import sys
 import argparse
 import cv2
+import tensorflow as tf
 from DataLoader import DataLoader, Batch
 from Model import Model, DecoderType
 from SamplePreprocessor import preprocess
@@ -26,6 +27,8 @@ def extract_text(model, input_img):
 
 
 def main():
+	tf.compat.v1.disable_eager_execution()
+
 	# optional command line args
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--train', help='train the NN', action='store_true')
