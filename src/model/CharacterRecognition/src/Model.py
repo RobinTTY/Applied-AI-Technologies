@@ -70,8 +70,8 @@ class Model:
             conv = tf.nn.conv2d(pool, kernel, padding='SAME', strides=(1, 1, 1, 1))
             conv_norm = tf.layers.batch_normalization(conv, training=self.is_train)
             relu = tf.nn.relu(conv_norm)
-            pool = tf.nn.max_pool2d(relu, (1, pool_values[i][0], pool_values[i][1], 1),
-                                    (1, stride_values[i][0], stride_values[i][1], 1), 'VALID')
+            pool = tf.nn.max_pool(relu, (1, pool_values[i][0], pool_values[i][1], 1),
+                                  (1, stride_values[i][0], stride_values[i][1], 1), 'VALID')
 
         self.cnnOut4d = pool
 

@@ -15,9 +15,12 @@ def preprocess(img, img_size, data_augmentation=False):
 
 	# increase dataset size by applying random stretches to the images
 	if data_augmentation:
-		stretch = (random.random() - 0.5) # -0.5 .. +0.5
-		w_stretched = max(int(img.shape[1] * (1 + stretch)), 1) # random width, but at least 1
-		img = cv2.resize(img, (w_stretched, img.shape[0])) # stretch horizontally by factor 0.5 .. 1.5
+		# -0.5 .. +0.5
+		stretch = (random.random() - 0.5)
+		# random width, but at least 1
+		w_stretched = max(int(img.shape[1] * (1 + stretch)), 1)
+		# stretch horizontally by factor 0.5 .. 1.5
+		img = cv2.resize(img, (w_stretched, img.shape[0]))
 	
 	# create target image and copy sample image into it
 	(wt, ht) = img_size
