@@ -21,9 +21,10 @@ class Model:
     imgSize = (128, 32)
     maxTextLen = 32
 
-    def __init__(self, char_list, decoder_type=DecoderType.BestPath, must_restore=False, dump=False):
+    # TODO: remove dump
+    def __init__(self, char_list, decoder_type=DecoderType.BestPath, must_restore=False):
         """init model: add CNN, RNN and CTC and initialize TF"""
-        self.dump = dump
+        self.dump = False
         self.charList = char_list
         self.decoderType = decoder_type
         self.mustRestore = must_restore

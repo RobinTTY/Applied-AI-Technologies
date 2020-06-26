@@ -27,23 +27,13 @@ def extract_text(model, input_img):
 
 
 def main():
+	# TODO: check if needed
 	tf.compat.v1.disable_eager_execution()
-
-	# optional command line args
-	parser = argparse.ArgumentParser()
-	parser.add_argument('--train', help='train the NN', action='store_true')
-	parser.add_argument('--validate', help='validate the NN', action='store_true')
-	parser.add_argument('--beamsearch', help='use beam search instead of best path decoding', action='store_true')
-	parser.add_argument('--wordbeamsearch', help='use word beam search instead of best path decoding', action='store_true')
-	parser.add_argument('--dump', help='dump output of NN to CSV file(s)', action='store_true')
-
-	args = parser.parse_args()
-
 	decoder_type = DecoderType.BestPath
 
 	# infer text on test image
 	print(open(FilePaths.fnAccuracy).read())
-	model = Model(open(FilePaths.fnCharList).read(), decoder_type, must_restore=True, dump=args.dump)
+	model = Model(open(FilePaths.fnCharList).read(), decoder_type, must_restore=True)
 	extract_text(model, FilePaths.fnInfer)
 
 
