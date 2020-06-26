@@ -88,6 +88,7 @@ class Model:
 
         # bidirectional RNN
         # BxTxF -> BxTx2H
+
         ((fw, bw), _) = tf.nn.bidirectional_dynamic_rnn(cell_fw=stacked, cell_bw=stacked, inputs=rnn_in3d,
                                                         dtype=rnn_in3d.dtype)
 
