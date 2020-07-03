@@ -1,30 +1,21 @@
 <template>
-  <div>
+<!-- TODO: USE card group -->
+  <div id="root">
     <b-container id="main-content" fluid>
-      <b-row class="vh-100 text-center" align-v="center">
-        <b-card-group>
-          <b-card title="Upload a picture">
-            <b-card-text>
-              <div class="h2 mb-0">
-                <b-icon-cloud-upload style="width: 360px; height: 360px;"></b-icon-cloud-upload>
-              </div>
-            </b-card-text>
-            <template v-slot:footer>
-              <small class="text-muted">More info?</small>
-            </template>
+      <b-row class="vh-100 p-5 text-center" align-v="center">
+        <b-col class="h-50">
+          <b-card class="p-4">
+            <b-card-img :src="require('../assets/cloud-upload.svg')"></b-card-img>
+            <b-card-text><h2>Upload a picture</h2></b-card-text>
           </b-card>
+        </b-col>
 
-          <b-card title="Take a picture">
-            <b-card-text>
-              <div class="h2 mb-0">
-                <b-icon-camera style="width: 360px; height: 360px;"></b-icon-camera>
-              </div>
-            </b-card-text>
-            <template v-slot:footer>
-              <small class="text-muted">More info?</small>
-            </template>
+        <b-col class="h-50">
+          <b-card class="p-4">
+            <b-card-img :src="require('../assets/camera2.svg')"></b-card-img>
+            <b-card-text><h2>Take a picture</h2></b-card-text>
           </b-card>
-        </b-card-group>
+        </b-col>
       </b-row>
     </b-container>
   </div>
@@ -39,7 +30,7 @@ export default {
 </script>
 
 <style scoped>
-#main-content {
-  margin-top: 60px;
+#root {
+  font-size: 1em;
 }
 </style>

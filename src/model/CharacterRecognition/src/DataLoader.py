@@ -5,7 +5,7 @@ import os
 import random
 import numpy as np
 import cv2
-from SamplePreprocessor import preprocess
+from ImagePreprocessor import ImagePreprocessor
 
 
 class Sample:
@@ -131,7 +131,7 @@ class DataLoader:
         batch_range = range(self.currIdx, self.currIdx + self.batchSize)
         gt_texts = [self.samples[i].gtText for i in batch_range]
         images = [
-            preprocess(cv2.imread(self.samples[i].filePath, cv2.IMREAD_GRAYSCALE), self.imgSize, self.dataAugmentation)
+            ImagePreprocessor.preprocess(cv2.imread(self.samples[i].filePath, cv2.IMREAD_GRAYSCALE), self.imgSize, self.dataAugmentation)
             for i in batch_range]
         self.currIdx += self.batchSize
         return Batch(gt_texts, images)
