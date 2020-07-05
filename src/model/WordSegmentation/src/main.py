@@ -19,7 +19,7 @@ def main():
 		# -sigma: standard deviation of Gaussian function used for filter kernel
 		# -theta: approximated width/height ratio of words, filter function is distorted by this factor
 		# - minArea: ignore word candidates smaller than specified area
-		res = segment_word(img, kernelSize=25, sigma=11, theta=7, minArea=100)
+		res = segment_word(img, kernel_size=25, sigma=11, theta=7, min_area=100)
 		
 		# write output to 'out/inputFileName' directory
 		if not os.path.exists('../out/%s' % f):
