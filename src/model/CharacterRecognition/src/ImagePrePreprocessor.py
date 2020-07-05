@@ -54,3 +54,18 @@ class ImagePrePreprocessor:
         for x in range(len(self.post_its)):
             self.post_its[x].print_info()
             print()
+
+    def find_words(self):
+        img = cv.imread('../data/input2.jpg', 0)
+        cv.threshold(img, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU, img)
+
+        contours, image = cv.findContours(img, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+        for c in contours:
+            # get the bounding rect
+            x, y, w, h = cv.boundingRect(c)
+            # draw a white rectangle to visualize the bounding rect
+            cv.rectangle(img, (x, y), (x + w, y + h), 255, 1)
+
+        cv.drawContours(img, contours, -1, (255, 255, 0), 1)
+
+        cv.imwrite("../data/output.png", img)
