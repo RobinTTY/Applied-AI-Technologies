@@ -1,6 +1,6 @@
 import os
 import cv2
-from WordSegmentation import wordSegmentation, prepareImg
+from WordSegmentation import segment_word, prepare_img
 
 
 def main():
@@ -12,14 +12,14 @@ def main():
 		print('Segmenting words of sample %s' % f)
 		
 		# read image, prepare it by resizing it to fixed height and converting it to grayscale
-		img = prepareImg(cv2.imread('../data/%s' % f), 50)
+		img = prepare_img(cv2.imread('../data/%s' % f), 50)
 		
 		# execute segmentation with given parameters
 		# -kernelSize: size of filter kernel (odd integer)
 		# -sigma: standard deviation of Gaussian function used for filter kernel
 		# -theta: approximated width/height ratio of words, filter function is distorted by this factor
 		# - minArea: ignore word candidates smaller than specified area
-		res = wordSegmentation(img, kernelSize=25, sigma=11, theta=7, minArea=100)
+		res = segment_word(img, kernelSize=25, sigma=11, theta=7, minArea=100)
 		
 		# write output to 'out/inputFileName' directory
 		if not os.path.exists('../out/%s' % f):
