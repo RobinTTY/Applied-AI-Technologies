@@ -3,7 +3,11 @@
     <b-row class="justify-content-md-center">
       <b-col>
         <h1 class="pt-3 text-center">Digitalize your Post-it notes today!</h1>
-        <b-img fluid-grow id="picture-main" :src="require('../assets/Illustrations/Search.svg')"></b-img>
+        <b-img
+          fluid-grow
+          id="picture-main"
+          :src="require('../assets/Illustrations/Search.svg')"
+        ></b-img>
       </b-col>
     </b-row>
 
@@ -13,7 +17,10 @@
           <b-col id="upload-col" md="6" sm="12">
             <router-link to="/upload">
               <b-card>
-                <b-card-img :src="require('../assets/Icons/cloud-upload.svg')" class="picture p-3"></b-card-img>
+                <b-card-img
+                  :src="require('../assets/Icons/cloud-upload.svg')"
+                  class="picture p-3"
+                ></b-card-img>
                 <b-card-text>
                   <h2>Upload a picture</h2>
                 </b-card-text>
@@ -23,7 +30,10 @@
 
           <b-col id="camera-col" md="6" sm="12">
             <b-card>
-              <b-card-img :src="require('../assets/Icons/camera.svg')" class="picture p-3"></b-card-img>
+              <b-card-img
+                :src="require('../assets/Icons/camera.svg')"
+                class="picture p-3"
+              ></b-card-img>
               <b-card-text>
                 <h2>Take a picture</h2>
               </b-card-text>

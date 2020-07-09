@@ -3,7 +3,11 @@
     <b-row>
       <b-col>
         <h1 class="p-3" style="text-align: center">Upload your picture</h1>
-        <img id="picture" :src="require('../assets/Illustrations/Upload.svg')" alt="Upload" />
+        <img
+          id="picture"
+          :src="require('../assets/Illustrations/Upload.svg')"
+          alt="Upload"
+        />
       </b-col>
     </b-row>
     <b-row class="p-3">
