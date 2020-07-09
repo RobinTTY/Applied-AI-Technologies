@@ -32,20 +32,24 @@
 export default {
   data() {
     return {
-      file: null
+      file: null,
+      baseServerUrl: "http://localhost:8090/RobinTTYTeam/AppliedAI/1.0.0"
     };
   },
   methods: {
-    submitFile() {
+    async submitFile() {
       let formData = new FormData();
       formData.append("file", this.file);
-      this.$http.get("https://api.github.com/users/mapbox").then(response => {
-        console.log(response.data);
-        console.log(response.status);
-        console.log(response.statusText);
-        console.log(response.headers);
-        console.log(response.config);
-      });
+      this.$http
+        .post(this.baseServerUrl + "/indexPostIts", this.file, {
+          params: {
+            pictureLink: "tesdsdsst"
+          },
+          headers: {
+            "Content-Type": "image/png"
+          }
+        })
+        .then(response => console.log(response));
     }
   }
 };

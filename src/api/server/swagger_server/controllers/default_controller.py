@@ -1,9 +1,7 @@
+from ..models.post_it import PostIt
+from ..models.coordinate import Coordinate
+from time import sleep
 import connexion
-import six
-
-from swagger_server.models.post_it import PostIt  # noqa: E501
-from swagger_server import util
-
 
 def index_post_its(body, picture_link):  # noqa: E501
     """Detects Post-it notes and digitalizes their contents
@@ -18,5 +16,14 @@ def index_post_its(body, picture_link):  # noqa: E501
     :rtype: List[PostIt]
     """
     if connexion.request.is_json:
+        # TODO: implement
         body = Object.from_dict(connexion.request.get_json())  # noqa: E501
-    return 'do some magic!'
+
+    print(picture_link)
+    print(body)
+    post_it_1 = PostIt("1", "Hochschule", "color", Coordinate(0, 0), 0, 0)
+    post_it_2 = PostIt("2", "where", "color", Coordinate(0, 0), 0, 0)
+    post_it_3 = PostIt("3", "hklein", "color", Coordinate(0, 0), 0, 0)
+    post_it_4 = PostIt("4", "Smartphoane", "color", Coordinate(0, 0), 0, 0)
+    sleep(4)
+    return [post_it_1, post_it_2, post_it_3, post_it_4]
