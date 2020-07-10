@@ -20,10 +20,12 @@ def index_post_its(body, picture_link):  # noqa: E501
         body = Object.from_dict(connexion.request.get_json())  # noqa: E501
 
     print(picture_link)
-    print(body)
-    post_it_1 = PostIt("1", "Hochschule", "color", Coordinate(0, 0), 0, 0)
-    post_it_2 = PostIt("2", "where", "color", Coordinate(0, 0), 0, 0)
-    post_it_3 = PostIt("3", "hklein", "color", Coordinate(0, 0), 0, 0)
-    post_it_4 = PostIt("4", "Smartphoane", "color", Coordinate(0, 0), 0, 0)
-    sleep(4)
-    return [post_it_1, post_it_2, post_it_3, post_it_4]
+    if picture_link == "test.jpg":
+        post_it_1 = PostIt("1", "Hochschule", "color", Coordinate(0, 0), 0, 0)
+        post_it_2 = PostIt("2", "where", "color", Coordinate(0, 0), 0, 0)
+        post_it_3 = PostIt("3", "hklein", "color", Coordinate(0, 0), 0, 0)
+        post_it_4 = PostIt("4", "Smartphoane", "color", Coordinate(0, 0), 0, 0)
+        sleep(5)
+        return [post_it_1, post_it_2, post_it_3, post_it_4]
+    else:
+        return []

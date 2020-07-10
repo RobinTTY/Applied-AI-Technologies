@@ -16,7 +16,7 @@
         <b-row>
           <b-col id="upload-col" md="6" sm="12">
             <router-link to="/upload">
-              <b-card>
+              <b-card class="shadow-lg card-container">
                 <b-card-img
                   :src="require('../assets/Icons/cloud-upload.svg')"
                   class="picture p-3"
@@ -29,7 +29,7 @@
           </b-col>
 
           <b-col id="camera-col" md="6" sm="12">
-            <b-card>
+            <b-card class="shadow-lg card-container">
               <b-card-img
                 :src="require('../assets/Icons/camera.svg')"
                 class="picture p-3"
@@ -62,6 +62,15 @@ a {
 
 .picture {
   max-width: 300px;
+}
+
+.card-container{
+  background: rgb(209, 230, 255);
+  background: radial-gradient(
+    circle,
+    rgba(209, 230, 255, 1) 57%,
+    rgba(255, 205, 234, 1) 100%
+  );
 }
 
 #root {
