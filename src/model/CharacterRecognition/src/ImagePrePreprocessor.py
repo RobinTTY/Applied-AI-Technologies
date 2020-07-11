@@ -33,7 +33,7 @@ class ImagePrePreprocessor:
 
     def find_post_its(self, resize_factor=2):
         self.pre_preprocess(resize_factor)
-        _, threshold = cv.threshold(self.img, 140, 255, cv.THRESH_BINARY_INV)
+        _, threshold = cv.threshold(self.img, 240, 255, cv.THRESH_BINARY_INV)
         contours, _ = cv.findContours(threshold, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
         file = Image.open(self.file_path)
@@ -42,13 +42,15 @@ class ImagePrePreprocessor:
 
         for contour in contours:
             x, y, w, h = cv.boundingRect(contour)
-            if ((width * height) / 999) < (w * h) < ((width * height) / 10):
+            if ((width * height) / 999) < (w * h) < ((width * height) / 2):
                 x, y, w, h = (x * resize_factor, y * resize_factor, w * resize_factor, h * resize_factor)
                 out = file.crop((x, y, x + w, y + h))
                 out_path = f"../data/output_{count}.png"
                 self.post_its.append(PostIt(out_path, (x, y, w, h)))
                 out.save(out_path)
                 count = count + 1
+
+        return count
 
     def print_info(self):
         for x in range(len(self.post_its)):
