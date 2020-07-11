@@ -20,14 +20,14 @@ def segment_word(img, kernel_size=25, sigma=11, theta=7, min_area=0):
 	# apply filter kernel
 	kernel = create_kernel(kernel_size, sigma, theta)
 	img_filtered = cv2.filter2D(img, -1, kernel, borderType=cv2.BORDER_REPLICATE).astype(np.uint8)
-	(_, img_thres) = cv2.threshold(img_filtered, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-	img_thres = 255 - img_thres
+	(_, img_threshold) = cv2.threshold(img_filtered, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+	img_threshold = 255 - img_threshold
 
 	# find connected components. OpenCV: return type differs between OpenCV2 and 3
 	if cv2.__version__.startswith('3.'):
-		(_, components, _) = cv2.findContours(img_thres, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+		(_, components, _) = cv2.findContours(img_threshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 	else:
-		(components, _) = cv2.findContours(img_thres, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+		(components, _) = cv2.findContours(img_threshold, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
 	# append components to result
 	res = []

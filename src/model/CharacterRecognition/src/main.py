@@ -7,7 +7,7 @@ import tensorflow as tf
 from WordSegmentation import segment_word, prepare_img
 from ImagePrePreprocessor import ImagePrePreprocessor
 from ImagePreprocessor import ImagePreprocessor
-from DataLoader import DataLoader, Batch
+from DataLoader import Batch
 from Model import Model, DecoderType
 
 
@@ -18,14 +18,25 @@ class FilePaths:
     fnInfer = '../data/output.png'
 
 
+<<<<<<< HEAD
 def extract_text(model, input_img):
     """recognize text in image provided by file path"""
     img = ImagePreprocessor.preprocess(cv2.imread(input_img, cv2.IMREAD_GRAYSCALE), Model.imgSize)
     batch = Batch(None, [img])
     (recognized, probability) = model.infer_batch(batch, True)
     return recognized[0]
+=======
+class PostItExtractor:
+    def __init__(self):
+        tf.compat.v1.disable_eager_execution()
+        self.decoder_type = DecoderType.BestPath
+        self.model = Model(open(FilePaths.fnCharList).read(), self.decoder_type, must_restore=True)
+>>>>>>> 3348f2b9d5b01226b0d779a47e7d23d61c36f0c3
 
+    def process_image(self, image):
+        # TODO: pass image properly
 
+<<<<<<< HEAD
 def test_word_segmentation():
     """reads images from data/ and outputs the word-segmentation to out/"""
 
@@ -72,19 +83,39 @@ def main():
     obj = ImagePrePreprocessor(file_path)
     num = obj.find_post_its()
     print(f"Found: {num}")
+=======
+        # preprocess images
+        file_path = "../data/colored/MultiplePostIts.png"
+        obj = ImagePrePreprocessor(file_path)
+        obj.find_post_its()
 
-    for x in range(len(obj.post_its)):
-        img = ImagePreprocessor.convert_image(obj.post_its[x].file_path)
-        img.save(f"../data/output_{x}.png")
+        for x in range(len(obj.post_its)):
+            img = ImagePreprocessor.convert_image(obj.post_its[x].file_path)
+            img.save(f"../data/output_{x}.png")
 
-    # infer text on test image
-    print(open(FilePaths.fnAccuracy).read())
-    model = Model(open(FilePaths.fnCharList).read(), decoder_type, must_restore=True)
+        # infer text on test image
+        print(open(FilePaths.fnAccuracy).read())
+>>>>>>> 3348f2b9d5b01226b0d779a47e7d23d61c36f0c3
 
-    for x in range(len(obj.post_its)):
-        obj.post_its[x].text = extract_text(model, obj.post_its[x].file_path)
+        for x in range(len(obj.post_its)):
+            obj.post_its[x].text = self.extract_text(self.model, obj.post_its[x].file_path)
 
-    obj.print_info()
+        obj.print_info()
+
+    @staticmethod
+    def extract_text(model, input_img):
+        """recognize text in image provided by file path"""
+        img = ImagePreprocessor.preprocess(cv2.imread(input_img, cv2.IMREAD_GRAYSCALE), Model.imgSize)
+        batch = Batch(None, [img])
+        (recognized, probability) = model.infer_batch(batch, True)
+        print('Recognized:', '"' + recognized[0] + '"')
+        print('Probability:', probability[0])
+        return recognized[0]
+
+
+def main():
+    extractor = PostItExtractor()
+    extractor.process_image(123)
 
 
 if __name__ == '__main__':
