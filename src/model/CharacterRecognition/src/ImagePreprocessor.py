@@ -10,13 +10,28 @@ class ImagePreprocessor:
     @staticmethod
     def convert_image(file_path):
         img = Image.open(file_path)
-        img = img.convert("L").resize((128, int(img.size[1] * (128 / img.size[0]))))
+        img = img.convert("L")
+        average = np.average(np.array(img))
+        img = Image.fromarray(np.where(np.array(img) > 0.9 * average, 255, 0))
+
+        max_x = max_y = 0
+        min_x = min_y = 1000000
+        img_arr = np.array(img)
+
+        for x in range(img_arr.shape[0]):
+            for y in range(img_arr.shape[1]):
+                if img_arr[x][y] == 0:
+                    min_x = x if x < min_x else min_x
+                    min_y = y if y < min_y else min_y
+                    max_x = x if x > max_x else max_x
+                    max_y = y if y > max_y else max_y
+
+        img = img.crop((min_y - 2, min_x - 2, max_y + 2, max_x + 2))
+        img = img.resize((128, int(img.size[1] * (128 / img.size[0]))))
 
         if img.size[1] > 32:
             img = img.resize((int(img.size[0] * (32 / img.size[1])), 32))
 
-        average = np.average(np.array(img))
-        img = Image.fromarray(np.where(np.array(img) > 0.9 * average, 255, 0))
         bg = Image.new('RGBA', (128, 32), (255, 255, 255, 255))
         bg.paste(img, (0, 0))
         return bg
