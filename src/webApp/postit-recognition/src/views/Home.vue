@@ -64,7 +64,7 @@ a {
   max-width: 300px;
 }
 
-.card-container{
+.card-container {
   background: rgb(209, 230, 255);
   background: radial-gradient(
     circle,
@@ -83,8 +83,18 @@ a {
 }
 
 @media (max-width: 768px) {
+  h1 {
+    font-size: 2em;
+  }
+
   #camera-col {
     padding-top: 3%;
+  }
+}
+
+@media (max-width: 576px) {
+  h1 {
+    font-size: 1.5em;
   }
 }
 </style>

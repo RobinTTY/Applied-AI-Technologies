@@ -74,7 +74,7 @@ export default {
       // Update page
       this.processing = true;
       this.title = "We are working on it...";
-      console.log(this.file)
+      console.log(this.file);
 
       // send post request
       let formData = new FormData();
