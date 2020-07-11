@@ -33,7 +33,7 @@ class ImagePrePreprocessor:
 
     def find_post_its(self, resize_factor=2):
         self.pre_preprocess(resize_factor)
-        _, threshold = cv.threshold(self.img, 140, 255, cv.THRESH_BINARY_INV)
+        _, threshold = cv.threshold(self.img, 240, 255, cv.THRESH_BINARY_INV)
         contours, _ = cv.findContours(threshold, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
         file = Image.open(self.file_path)
