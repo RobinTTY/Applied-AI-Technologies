@@ -1,4 +1,5 @@
 import cv2 as cv
+import numpy as np
 from PIL import Image
 
 
@@ -32,6 +33,25 @@ class ImagePrePreprocessor:
         self.img = cv.resize(final_gray, (0, 0), fx=(1 / resize_factor), fy=(1 / resize_factor))
 
     def find_post_its(self, resize_factor=2):
+        img = Image.open(self.file_path)
+        arr = np.array(img)
+
+        y_dim = arr.shape[0]
+        x_dim = arr.shape[1]
+        test_arr = np.zeros((y_dim, x_dim))
+
+        for y in range(y_dim):
+            for x in range(x_dim):
+                r, g, b = arr[y][x]
+
+                if max(r, g, b) - min(r, g, b) < 20:
+                    test_arr[y][x] = 255
+
+        test_img = Image.fromarray(test_arr)
+        test_img = test_img.convert('RGB')
+        test_img.save("../data/black_white.png")
+        self.img = cv.imread("../data/black_white.png")
+
         self.pre_preprocess(resize_factor)
         _, threshold = cv.threshold(self.img, 240, 255, cv.THRESH_BINARY_INV)
         contours, _ = cv.findContours(threshold, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
