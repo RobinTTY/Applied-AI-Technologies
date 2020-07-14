@@ -7,3 +7,8 @@ notes/
 .idea/
 dump/
 venv/
+
+# User defined
+
+data/output_*
+data/black_white*

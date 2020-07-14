@@ -9,12 +9,7 @@
           :src="require('../assets/Illustrations/Upload.svg')"
           alt="Upload"
         />
-        <lottie
-          v-if="processing"
-          :options="defaultOptions"
-          :height="600"
-          :width="900"
-        />
+        <lottie v-if="processing" :options="defaultOptions" :height="600" :width="900" />
       </b-col>
     </b-row>
     <b-row class="p-3">
@@ -35,9 +30,18 @@
     <b-row>
       <b-col>
         <h2 v-if="done">Your results</h2>
-        <ol id="results">
-          <li v-for="postIt in postIts" :key="postIt.text">{{ postIt }}</li>
-        </ol>
+        <b-card-group deck>
+          <b-card v-for="postIt in postIts" :key="postIt.id">
+            <b-card-text>{{ postIt.contents }}</b-card-text>
+            <template v-slot:footer>
+              <small class="text-muted"
+                >Position: x={{ postIt.coordinates.posX }} y={{
+                  postIt.coordinates.posY
+                }}
+              </small>
+            </template>
+          </b-card>
+        </b-card-group>
       </b-col>
     </b-row>
   </b-container>
@@ -91,7 +95,7 @@ export default {
         .then(response => {
           //console.log(response);
           console.log(response.data);
-          response.data.forEach(obj => this.postIts.push(obj.contents));
+          response.data.forEach(obj => this.postIts.push(obj));
           this.title = "Your results are ready!";
           this.done = true;
         });
