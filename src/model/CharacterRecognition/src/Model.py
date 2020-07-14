@@ -4,7 +4,6 @@ from __future__ import print_function
 import sys
 import numpy as np
 import tensorflow as tf
-import os
 
 
 class DecoderType:
@@ -14,14 +13,10 @@ class DecoderType:
 
 
 class Model:
-    """minimalistic TF model for HTR"""
-
-    # model constants
     batchSize = 50
     imgSize = (128, 32)
     maxTextLen = 32
 
-    # TODO: remove dump
     def __init__(self, char_list, decoder_type=DecoderType.BestPath, must_restore=False):
         """init model: add CNN, RNN and CTC and initialize TF"""
         self.dump = False
@@ -136,7 +131,7 @@ class Model:
             # prepare information about language (dictionary, characters in dataset, characters forming words)
             chars = str().join(self.charList)
             word_chars = open('../model/wordCharList.txt').read().splitlines()[0]
-            corpus = open('../data/corpus.txt').read()
+            corpus = open('../model/corpus.txt').read()
 
             # decode using the "Words" mode of word beam search
             self.decoder = word_beam_search_module.word_beam_search(tf.compat.v1.nn.softmax(self.ctcIn3dTBC, dim=2), 50,
@@ -150,9 +145,11 @@ class Model:
 
         sess = tf.compat.v1.Session()  # TF session
 
-        saver = tf.compat.v1.train.Saver(max_to_keep=1)  # saver saves model to file
+        # save model to file
+        saver = tf.compat.v1.train.Saver(max_to_keep=1)
         model_dir = '../model/'
-        latest_snapshot = tf.compat.v1.train.latest_checkpoint(model_dir)  # is there a saved model?
+        # check if there is a saved model
+        latest_snapshot = tf.compat.v1.train.latest_checkpoint(model_dir)
 
         # if model must be restored (for inference), there must be a snapshot
         if self.mustRestore and not latest_snapshot:
@@ -169,7 +166,7 @@ class Model:
         return sess, saver
 
     def to_sparse(self, texts):
-        "put ground truth texts into sparse tensor for ctc_loss"
+        """put ground truth texts into sparse tensor for ctc_loss"""
         indices = []
         values = []
         shape = [len(texts), 0]  # last entry must be max(labelList[i])
@@ -217,25 +214,6 @@ class Model:
 
         # map labels to chars for all batch elements
         return [str().join([self.charList[c] for c in labelStr]) for labelStr in encoded_label_strings]
-
-    def dump_nn_output(self, rnn_output):
-        """dump the output of the NN to CSV file(s)"""
-        dump_dir = '../dump/'
-        if not os.path.isdir(dump_dir):
-            os.mkdir(dump_dir)
-
-        # iterate over all batch elements and create a CSV file for each one
-        max_t, max_b, max_c = rnn_output.shape
-        for b in range(max_b):
-            csv = ''
-            for t in range(max_t):
-                for c in range(max_c):
-                    csv += str(rnn_output[t, b, c]) + ';'
-                csv += '\n'
-            fn = dump_dir + 'rnnOutput_' + str(b) + '.csv'
-            print('Write dump of NN to file: ' + fn)
-            with open(fn, 'w') as f:
-                f.write(csv)
 
     def infer_batch(self, batch, calc_probability=False, probability_of_gt=False):
         """feed a batch into the NN to recognize the texts"""

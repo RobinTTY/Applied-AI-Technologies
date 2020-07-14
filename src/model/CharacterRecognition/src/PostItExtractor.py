@@ -1,46 +1,33 @@
-from __future__ import division
-from __future__ import print_function
-
 import cv2
 import tensorflow as tf
-from ImagePrePreprocessor import ImagePrePreprocessor
 from ImagePreprocessor import ImagePreprocessor
-from DataLoader import Batch
+from Batch import Batch
 from Model import Model, DecoderType
 
 
-class FilePaths:
-    """relevant file paths"""
-    fnCharList = '../model/charList.txt'
-    fnAccuracy = '../model/accuracy.txt'
-    fnInfer = '../data/output.png'
-
-
 class PostItExtractor:
-    def __init__(self):
+    def __init__(self, debug_mode=False):
         tf.compat.v1.disable_eager_execution()
         self.decoder_type = DecoderType.BestPath
-        self.model = Model(open(FilePaths.fnCharList).read(), self.decoder_type, must_restore=True)
+        self.model = Model(open('../model/charList.txt').read(), self.decoder_type, must_restore=True)
+        self.debugMode = debug_mode
 
     def process_image(self, image):
         # TODO: pass image properly
 
         # preprocess images
         file_path = "../data/colored/MultiplePostIts.jpg"
-        obj = ImagePrePreprocessor(file_path)
-        obj.find_post_its()
+        pre_processor = ImagePreprocessor(file_path)
+        pre_processor.find_post_its()
 
-        for x in range(len(obj.post_its)):
-            img = ImagePreprocessor.convert_image(obj.post_its[x].file_path)
+        for x in range(len(pre_processor.post_its)):
+            img = ImagePreprocessor.convert_image(pre_processor.post_its[x].file_path)
             img.save(f"../data/output_{x}.png")
 
-        # infer text on test image
-        print(open(FilePaths.fnAccuracy).read())
+        for x in range(len(pre_processor.post_its)):
+            pre_processor.post_its[x].text = self.extract_text(self.model, pre_processor.post_its[x].file_path)
 
-        for x in range(len(obj.post_its)):
-            obj.post_its[x].text = self.extract_text(self.model, obj.post_its[x].file_path)
-
-        obj.print_info()
+        pre_processor.print_info()
 
     @staticmethod
     def extract_text(model, input_img):
@@ -54,7 +41,7 @@ class PostItExtractor:
 
 
 def main():
-    extractor = PostItExtractor()
+    extractor = PostItExtractor(debug_mode=False)
     extractor.process_image(123)
 
 
