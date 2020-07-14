@@ -12,11 +12,11 @@ class PostItExtractor:
         self.model = Model(open('../model/charList.txt').read(), self.decoder_type, must_restore=True)
         self.debugMode = debug_mode
 
-    def process_image(self, image):
+    def process_image(self):
         # TODO: pass image properly
 
         # preprocess images
-        file_path = "../data/colored/MultiplePostIts.jpg"
+        file_path = "../data/colored/MultiplePostIts3.jpg"
         pre_processor = ImagePreprocessor(file_path)
         pre_processor.find_post_its()
 
@@ -42,7 +42,7 @@ class PostItExtractor:
 
 def main():
     extractor = PostItExtractor(debug_mode=False)
-    extractor.process_image(123)
+    extractor.process_image()
 
 
 if __name__ == '__main__':
