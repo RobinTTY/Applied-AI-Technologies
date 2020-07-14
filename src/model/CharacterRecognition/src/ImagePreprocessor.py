@@ -12,7 +12,7 @@ class ImagePreprocessor:
         img = Image.open(file_path)
         img = img.convert("L")
         average = np.average(np.array(img))
-        img = Image.fromarray(np.where(np.array(img) > 0.9 * average, 255, 0))
+        img = Image.fromarray(np.where(np.array(img) > 0.8 * average, 255, 0))
 
         max_x = max_y = 0
         min_x = min_y = 1000000

@@ -26,7 +26,7 @@ class PostItExtractor:
         # TODO: pass image properly
 
         # preprocess images
-        file_path = "../data/colored/MultiplePostIts3.png"
+        file_path = "../data/colored/MultiplePostIts.jpg"
         obj = ImagePrePreprocessor(file_path)
         obj.find_post_its()
 
