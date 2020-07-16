@@ -3,7 +3,7 @@
     <b-navbar-brand id="brand" href="#">
       <router-link to="/">
         <img
-          :src="require('../assets/Icons/post-it.png')"
+          :src="require('../assets/Icons/icon.png')"
           width="36"
           height="36"
           alt="Post-it"
@@ -14,6 +14,9 @@
     <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
     <b-collapse id="nav-collapse" is-nav>
       <b-navbar-nav>
+        <b-nav-item :to="'/pricing'" :active="$route.name == 'Pricing'"
+          >Pricing</b-nav-item
+        >
         <b-nav-item :to="'/about'" :active="$route.name == 'About'"
           >About</b-nav-item
         >
@@ -23,9 +26,7 @@
 </template>
 
 <script>
-export default {
-  
-};
+export default {};
 </script>
 
 <style scoped>
