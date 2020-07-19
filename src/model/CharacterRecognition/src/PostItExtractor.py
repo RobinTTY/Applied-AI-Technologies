@@ -3,10 +3,12 @@ import tensorflow as tf
 from ImagePreprocessor import ImagePreprocessor
 from Batch import Batch
 from Model import Model, DecoderType
+import os
 
 
 class PostItExtractor:
     def __init__(self, debug_mode=False):
+        os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
         tf.compat.v1.disable_eager_execution()
         self.decoder_type = DecoderType.BestPath
         self.model = Model(open('../model/charList.txt').read(), self.decoder_type, must_restore=True)
@@ -16,7 +18,7 @@ class PostItExtractor:
         # TODO: pass image properly
 
         # preprocess images
-        file_path = "../data/colored/MultiplePostIts4.jpg"
+        file_path = "../data/colored/MultiplePostIts5.jpg"
         pre_processor = ImagePreprocessor(file_path)
         pre_processor.find_post_its()
 
