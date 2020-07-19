@@ -19,7 +19,7 @@ class ImagePreprocessor:
         img = Image.open(file_path)
         img = img.convert("L")
         average = np.average(np.array(img))
-        img = Image.fromarray(np.where(np.array(img) > 0.8 * average, 255, 0))
+        img = Image.fromarray(np.where(np.array(img) > 0.4 * average, 255, 0))
 
         max_x = max_y = 0
         min_x = min_y = 1000000
@@ -34,6 +34,7 @@ class ImagePreprocessor:
                     max_y = y if y > max_y else max_y
 
         img = img.crop((min_y - 2, min_x - 2, max_y + 2, max_x + 2))
+        img.show()
         img = img.resize((128, int(img.size[1] * (128 / img.size[0]))))
 
         if img.size[1] > 32:
