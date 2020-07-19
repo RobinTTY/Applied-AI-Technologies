@@ -7,7 +7,8 @@
           fluid-grow
           id="picture-main"
           :src="require('../assets/Illustrations/Search.svg')"
-        ></b-img>
+        >
+        </b-img>
       </b-col>
     </b-row>
 
@@ -50,6 +51,14 @@ export default {
   name: "Home",
   props: {
     msg: String
+  },
+  mounted() {
+    let recaptchaScript = document.createElement("script");
+    recaptchaScript.setAttribute(
+      "src",
+      "https://editor.swagger.io/dist/swagger-editor-bundle.js"
+    );
+    document.head.appendChild(recaptchaScript);
   }
 };
 </script>

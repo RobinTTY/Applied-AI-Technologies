@@ -9,10 +9,15 @@
           :src="require('../assets/Illustrations/Upload.svg')"
           alt="Upload"
         />
-        <lottie v-if="processing" :options="defaultOptions" :height="600" :width="900" />
+        <lottie
+          v-if="processing"
+          :options="defaultOptions"
+          :height="600"
+          :width="900"
+        />
       </b-col>
     </b-row>
-    <b-row class="p-3">
+    <b-row id="file-upload" class="p-4">
       <b-col class="p-0" cols="10">
         <div class="custom-file" align-v="center">
           <b-form-file
@@ -24,7 +29,7 @@
         </div>
       </b-col>
       <b-col class="pl-1" cols="2">
-        <b-button v-on:click="submitFile()">Submit</b-button>
+        <b-button v-on:click="submitFile()" id="submit">Submit</b-button>
       </b-col>
     </b-row>
     <b-row>
@@ -105,11 +110,31 @@ export default {
 </script>
 
 <style scoped>
+#file-upload {
+  font-size: 1.5em;
+}
+
+#submit {
+  font-size: 1em;
+}
+
 #picture {
   max-width: 100%;
 }
 
 #results {
   font-size: 20pt;
+}
+
+@media (max-width: 768px) {
+  #file-upload {
+    font-size: 1.2em;
+  }
+}
+
+@media (max-width: 576px) {
+  #file-upload {
+    font-size: 1em;
+  }
 }
 </style>
