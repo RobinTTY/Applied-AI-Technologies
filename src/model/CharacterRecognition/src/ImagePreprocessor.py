@@ -8,16 +8,14 @@ import cv2 as cv
 
 
 class ImagePreprocessor:
-    def __init__(self, file_path):
+    def __init__(self, file_path, debug_mode):
         self.file_path = file_path
         self.img = cv.imread(file_path, 1)
-        self.post_its = []
+        self.debug_mode = debug_mode
 
-    @staticmethod
-    def convert_image(file_path):
+    def convert_image(self, file):
         """convert image to right dimensions"""
-        img = Image.open(file_path)
-        img = img.convert("L")
+        img = file.convert("L")
         average = np.average(np.array(img))
         img = Image.fromarray(np.where(np.array(img) > 0.4 * average, 255, 0))
 
@@ -34,7 +32,10 @@ class ImagePreprocessor:
                     max_y = y if y > max_y else max_y
 
         img = img.crop((min_y - 2, min_x - 2, max_y + 2, max_x + 2))
-        img.show()
+
+        if self.debug_mode:
+            img.show()
+
         img = img.resize((128, int(img.size[1] * (128 / img.size[0]))))
 
         if img.size[1] > 32:
@@ -42,10 +43,11 @@ class ImagePreprocessor:
 
         bg = Image.new('RGBA', (128, 32), (255, 255, 255, 255))
         bg.paste(img, (0, 0))
-        return bg
+        imcv = cv.cvtColor(np.asarray(bg), cv.COLOR_RGB2GRAY)
+        return imcv
 
     @staticmethod
-    def preprocess(img, img_size, data_augmentation=False):
+    def preprocess(img, img_size):
         """default image transformations"""
 
         # there are damaged files in IAM dataset - just use black image instead
@@ -87,6 +89,7 @@ class ImagePreprocessor:
         self.img = cv.resize(final_gray, (0, 0), fx=(1 / resize_factor), fy=(1 / resize_factor))
 
     def find_post_its(self, resize_factor=2):
+        """returns number of detected post-it's"""
         img = Image.open(self.file_path)
         arr = np.array(img)
 
@@ -103,8 +106,7 @@ class ImagePreprocessor:
 
         test_img = Image.fromarray(test_arr)
         test_img = test_img.convert('RGB')
-        test_img.save("../data/black_white.png")
-        self.img = cv.imread("../data/black_white.png")
+        self.img = cv.cvtColor(np.asarray(test_img), cv.COLOR_RGB2BGR)
 
         self.pre_preprocess(resize_factor)
         _, threshold = cv.threshold(self.img, 240, 255, cv.THRESH_BINARY_INV)
@@ -114,20 +116,17 @@ class ImagePreprocessor:
         width, height = file.size
         count = 0
 
+        post_its = []
         for contour in contours:
             x, y, w, h = cv.boundingRect(contour)
             if ((width * height) / 999) < (w * h) < ((width * height) / 10):
                 x, y, w, h = (x * resize_factor, y * resize_factor, w * resize_factor, h * resize_factor)
-                out = file.crop((x, y, x + w, y + h))
-                out_path = f"../data/output_{count}.png"
-                self.post_its.append(PostIt(out_path, (x, y, w, h)))
-                out.save(out_path)
-                count = count + 1
+                post_it_file = file.crop((x, y, x + w, y + h))
+                post_it = PostIt(post_it_file, (x, y, w, h))
+                post_its.append(post_it)
+                count += 1
 
-    def print_info(self):
-        for x in range(len(self.post_its)):
-            self.post_its[x].print_info()
-            print()
+        return post_its
 
     # not used atm
     def find_words(self):

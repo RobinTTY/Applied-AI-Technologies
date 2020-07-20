@@ -12,33 +12,25 @@ class PostItExtractor:
         tf.compat.v1.disable_eager_execution()
         self.decoder_type = DecoderType.BestPath
         self.model = Model(open('../model/charList.txt').read(), self.decoder_type, must_restore=True)
-        self.debugMode = debug_mode
+        self.debug_mode = debug_mode
 
     def process_image(self):
-        # TODO: pass image properly
-
-        # preprocess images
         file_path = "../data/colored/MultiplePostIts5.jpg"
-        pre_processor = ImagePreprocessor(file_path)
-        pre_processor.find_post_its()
+        pre_processor = ImagePreprocessor(file_path, self.debug_mode)
+        post_its = pre_processor.find_post_its()
 
-        for x in range(len(pre_processor.post_its)):
-            img = ImagePreprocessor.convert_image(pre_processor.post_its[x].file_path)
-            img.save(f"../data/output_{x}.png")
-
-        for x in range(len(pre_processor.post_its)):
-            pre_processor.post_its[x].text = self.extract_text(self.model, pre_processor.post_its[x].file_path)
-
-        pre_processor.print_info()
+        for post_it in post_its:
+            img = pre_processor.convert_image(post_it.file)
+            post_it.file = img
+            post_it.text = self.extract_text(self.model, post_it.file)
+            print(post_it)
 
     @staticmethod
     def extract_text(model, input_img):
         """recognize text in image provided by file path"""
-        img = ImagePreprocessor.preprocess(cv2.imread(input_img, cv2.IMREAD_GRAYSCALE), Model.imgSize)
+        img = ImagePreprocessor.preprocess(input_img, Model.imgSize)
         batch = Batch(None, [img])
         (recognized, probability) = model.infer_batch(batch, True)
-        print('Recognized:', '"' + recognized[0] + '"')
-        print('Probability:', probability[0])
         return recognized[0]
 
 
