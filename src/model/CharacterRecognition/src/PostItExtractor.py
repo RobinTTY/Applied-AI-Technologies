@@ -6,6 +6,17 @@ import os
 import sys
 
 
+def main():
+    extractor = PostItExtractor(debug_mode=False)
+    try:
+        extractor.image_to_post_its("../data/colored/MultiplePostIts6.jpg")
+    except Exception as exception:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        file_name = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, file_name, exc_tb.tb_lineno)
+        print(exception)
+
+
 class PostItExtractor:
     def __init__(self, debug_mode=False):
         os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
@@ -14,10 +25,9 @@ class PostItExtractor:
         self.model = Model(open('../model/charList.txt').read(), self.decoder_type, must_restore=True)
         self.debug_mode = debug_mode
 
-    def image_to_post_its(self, image=""):
-        file_path = "../data/colored/MultiplePostIts6.jpg"
+    def image_to_post_its(self, image_path):
         pre_processor = ImagePreprocessor(self.debug_mode)
-        post_its = pre_processor.find_post_its(file_path)
+        post_its = pre_processor.find_post_its(image_path)
 
         for post_it in post_its:
             img = pre_processor.convert_image(post_it.file)
@@ -34,17 +44,6 @@ class PostItExtractor:
         batch = Batch(None, [img])
         (recognized, probability) = model.infer_batch(batch, True)
         return recognized[0]
-
-
-def main():
-    extractor = PostItExtractor(debug_mode=False)
-    try:
-        extractor.image_to_post_its()
-    except Exception as exception:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        file_name = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, file_name, exc_tb.tb_lineno)
-        print(exception)
 
 
 if __name__ == '__main__':
