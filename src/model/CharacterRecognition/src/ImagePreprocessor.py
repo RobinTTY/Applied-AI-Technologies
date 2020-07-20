@@ -8,9 +8,7 @@ import cv2 as cv
 
 
 class ImagePreprocessor:
-    def __init__(self, file_path, debug_mode):
-        self.file_path = file_path
-        self.img = cv.imread(file_path, 1)
+    def __init__(self, debug_mode):
         self.debug_mode = debug_mode
 
     def convert_image(self, file):
@@ -78,19 +76,20 @@ class ImagePreprocessor:
         img = img / s if s > 0 else img
         return img
 
-    def pre_preprocess(self, resize_factor):
-        lab = cv.cvtColor(self.img, cv.COLOR_BGR2LAB)
+    @staticmethod
+    def resize(image, resize_factor):
+        lab = cv.cvtColor(image, cv.COLOR_BGR2LAB)
         l, a, b = cv.split(lab)
         enhanced = cv.createCLAHE(clipLimit=2.0, tileGridSize=(1, 1))
         cl = enhanced.apply(l)
         merged = cv.merge((cl, a, b))
         final_rgb = cv.cvtColor(merged, cv.COLOR_LAB2BGR)
         final_gray = cv.cvtColor(final_rgb, cv.COLOR_RGB2GRAY)
-        self.img = cv.resize(final_gray, (0, 0), fx=(1 / resize_factor), fy=(1 / resize_factor))
+        return cv.resize(final_gray, (0, 0), fx=(1 / resize_factor), fy=(1 / resize_factor))
 
-    def find_post_its(self, resize_factor=2):
+    def find_post_its(self, image_path, resize_factor=2):
         """returns number of detected post-it's"""
-        img = Image.open(self.file_path)
+        img = Image.open(image_path)
         arr = np.array(img)
 
         y_dim = arr.shape[0]
@@ -106,14 +105,13 @@ class ImagePreprocessor:
 
         test_img = Image.fromarray(test_arr)
         test_img = test_img.convert('RGB')
-        self.img = cv.cvtColor(np.asarray(test_img), cv.COLOR_RGB2BGR)
+        image = cv.cvtColor(np.asarray(test_img), cv.COLOR_RGB2BGR)
 
-        self.pre_preprocess(resize_factor)
-        _, threshold = cv.threshold(self.img, 240, 255, cv.THRESH_BINARY_INV)
+        image = self.resize(image, resize_factor)
+        _, threshold = cv.threshold(image, 240, 255, cv.THRESH_BINARY_INV)
         contours, _ = cv.findContours(threshold, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
-        file = Image.open(self.file_path)
-        width, height = file.size
+        width, height = img.size
         count = 0
 
         post_its = []
@@ -121,7 +119,7 @@ class ImagePreprocessor:
             x, y, w, h = cv.boundingRect(contour)
             if ((width * height) / 999) < (w * h) < ((width * height) / 10):
                 x, y, w, h = (x * resize_factor, y * resize_factor, w * resize_factor, h * resize_factor)
-                post_it_file = file.crop((x, y, x + w, y + h))
+                post_it_file = img.crop((x, y, x + w, y + h))
                 post_it = PostIt(post_it_file, (x, y, w, h))
                 post_its.append(post_it)
                 count += 1
@@ -129,7 +127,8 @@ class ImagePreprocessor:
         return post_its
 
     # not used atm
-    def find_words(self):
+    @staticmethod
+    def find_words():
         img = cv.imread('../data/input2.jpg', 0)
         cv.threshold(img, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU, img)
 
