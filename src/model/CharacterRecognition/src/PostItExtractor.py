@@ -2,6 +2,7 @@ import tensorflow as tf
 from ImagePreprocessor import ImagePreprocessor
 from Batch import Batch
 from Model import Model, DecoderType
+from PostItGroup import PostItGroup
 import os
 import sys
 
@@ -9,7 +10,12 @@ import sys
 def main():
     extractor = PostItExtractor(debug_mode=False)
     try:
-        extractor.image_to_post_its("../data/colored/MultiplePostIts6.jpg")
+        post_its = extractor.image_to_post_its("../data/colored/MultiplePostIts8.jpg")
+        post_it_groups = extractor.group_post_its(post_its)
+
+        for group in post_it_groups:
+            print(group)
+
     except Exception as exception:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         file_name = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -33,9 +39,34 @@ class PostItExtractor:
             img = pre_processor.convert_image(post_it.file)
             post_it.file = img
             post_it.text = self.extract_text(self.model, post_it.file)
-            print(post_it)
+            post_it.rgb = pre_processor.get_color(image_path, post_it.rect)
 
         return post_its
+
+    @staticmethod
+    def group_post_its(ungrouped_post_its):
+        groups = []
+
+        for post_it in ungrouped_post_its:
+            found_group = False
+
+            for group in groups:
+                diff = (
+                    abs(post_it.rgb[0] - group.color[0]),
+                    abs(post_it.rgb[1] - group.color[1]),
+                    abs(post_it.rgb[2] - group.color[2])
+                )
+
+                if max(diff[0], diff[1], diff[2]) < 30:
+                    group.post_its.append(post_it)
+                    found_group = True
+
+            if not found_group:
+                grp = PostItGroup(post_it.rgb)
+                grp.post_its.append(post_it)
+                groups.append(grp)
+
+        return groups
 
     @staticmethod
     def extract_text(model, input_img):

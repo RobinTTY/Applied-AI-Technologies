@@ -45,6 +45,20 @@ class ImagePreprocessor:
         return imcv
 
     @staticmethod
+    def get_color(img_path, rect):
+        img = Image.open(img_path).crop((rect[0], rect[1], rect[0] + rect[2], rect[1] + rect[3]))
+
+        r = img.getchannel('R')
+        g = img.getchannel('G')
+        b = img.getchannel('B')
+
+        r_avg = int(np.average(np.array(r)))
+        g_avg = int(np.average(np.array(g)))
+        b_avg = int(np.average(np.array(b)))
+
+        return r_avg, g_avg, b_avg
+
+    @staticmethod
     def preprocess(img, img_size):
         """default image transformations"""
 
