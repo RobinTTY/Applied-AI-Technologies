@@ -8,6 +8,11 @@ info:
     name: GNU General Public License v3.0
     url: https://www.gnu.org/licenses/gpl-3.0.en.html
   version: 1.0.0
+
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/RobinTTYTeam/AppliedAI/1.0.0
+
 paths:
   /indexPostIts:
     post:
