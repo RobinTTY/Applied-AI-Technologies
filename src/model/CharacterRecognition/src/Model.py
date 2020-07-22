@@ -6,22 +6,15 @@ import numpy as np
 import tensorflow as tf
 
 
-class DecoderType:
-    BestPath = 0
-    BeamSearch = 1
-    WordBeamSearch = 2
-
-
 class Model:
     batchSize = 50
     imgSize = (128, 32)
     maxTextLen = 32
 
-    def __init__(self, decoder_type=DecoderType.BestPath, must_restore=False):
+    def __init__(self, must_restore=False):
         """init model: add CNN, RNN and CTC and initialize TF"""
         self.dump = False
         self.charList = " !\"#&'()*+,-./0123456789:;?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-        self.decoderType = decoder_type
         self.mustRestore = must_restore
         self.snapID = 0
 
@@ -118,25 +111,8 @@ class Model:
         self.lossPerElement = tf.compat.v1.nn.ctc_loss(labels=self.gtTexts, inputs=self.savedCtcInput,
                                                        sequence_length=self.seqLen, ctc_merge_repeated=True)
 
-        # decoder: either best path decoding or beam search decoding
-        if self.decoderType == DecoderType.BestPath:
-            self.decoder = tf.compat.v1.nn.ctc_greedy_decoder(inputs=self.ctcIn3dTBC, sequence_length=self.seqLen)
-        elif self.decoderType == DecoderType.BeamSearch:
-            self.decoder = tf.compat.v1.nn.ctc_beam_search_decoder(inputs=self.ctcIn3dTBC, sequence_length=self.seqLen,
-                                                         beam_width=50, merge_repeated=False)
-        elif self.decoderType == DecoderType.WordBeamSearch:
-            # import compiled word beam search operation
-            word_beam_search_module = tf.compat.v1.load_op_library('TFWordBeamSearch.so')
-
-            # prepare information about language (dictionary, characters in dataset, characters forming words)
-            chars = str().join(self.charList)
-            word_chars = open('../model/wordCharList.txt').read().splitlines()[0]
-            corpus = open('../model/corpus.txt').read()
-
-            # decode using the "Words" mode of word beam search
-            self.decoder = word_beam_search_module.word_beam_search(tf.compat.v1.nn.softmax(self.ctcIn3dTBC, dim=2), 50,
-                                                                    'Words', 0.0, corpus.encode('utf8'),
-                                                                    chars.encode('utf8'), word_chars.encode('utf8'))
+        # decoder: best path decoding
+        self.decoder = tf.compat.v1.nn.ctc_greedy_decoder(inputs=self.ctcIn3dTBC, sequence_length=self.seqLen)
 
     def setup_tf(self):
         """initialize TF"""
@@ -191,26 +167,16 @@ class Model:
         # contains string of labels for each batch element
         encoded_label_strings = [[] for i in range(batch_size)]
 
-        # word beam search: label strings terminated by blank
-        if self.decoderType == DecoderType.WordBeamSearch:
-            blank = len(self.charList)
-            for b in range(batch_size):
-                for label in ctc_output[b]:
-                    if label == blank:
-                        break
-                    encoded_label_strings[b].append(label)
-
         # TF decoders: label strings are contained in sparse tensor
-        else:
-            # ctc returns tuple, first element is SparseTensor
-            decoded = ctc_output[0][0]
+        # ctc returns tuple, first element is SparseTensor
+        decoded = ctc_output[0][0]
 
-            # go over all indices and save mapping: batch -> values
-            idx_dict = {b: [] for b in range(batch_size)}
-            for (idx, idx2d) in enumerate(decoded.indices):
-                label = decoded.values[idx]
-                batch_element = idx2d[0]  # index according to [b,t]
-                encoded_label_strings[batch_element].append(label)
+        # go over all indices and save mapping: batch -> values
+        idx_dict = {b: [] for b in range(batch_size)}
+        for (idx, idx2d) in enumerate(decoded.indices):
+            label = decoded.values[idx]
+            batch_element = idx2d[0]  # index according to [b,t]
+            encoded_label_strings[batch_element].append(label)
 
         # map labels to chars for all batch elements
         return [str().join([self.charList[c] for c in labelStr]) for labelStr in encoded_label_strings]
@@ -238,9 +204,5 @@ class Model:
                          self.seqLen: [Model.maxTextLen] * num_batch_elements, self.is_train: False}
             loss_values = self.sess.run(eval_list, feed_dict)
             probabilities = np.exp(-loss_values)
-
-        # dump the output of the NN to CSV file(s)
-        if self.dump:
-            self.dump_nn_output(eval_res[1])
 
         return texts, probabilities

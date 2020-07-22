@@ -1,7 +1,7 @@
 import tensorflow as tf
 from ImagePreprocessor import ImagePreprocessor
 from Batch import Batch
-from Model import Model, DecoderType
+from Model import Model
 from PostItGroup import PostItGroup
 import os
 import sys
@@ -31,7 +31,7 @@ class PostItExtractor:
     def __init__(self, debug_mode=False):
         os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
         tf.compat.v1.disable_eager_execution()
-        self.model = Model(DecoderType.BestPath, must_restore=True)
+        self.model = Model(must_restore=True)
         self.debug_mode = debug_mode
 
     def image_to_post_its(self, image_path):
