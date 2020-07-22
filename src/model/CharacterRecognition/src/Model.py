@@ -17,10 +17,10 @@ class Model:
     imgSize = (128, 32)
     maxTextLen = 32
 
-    def __init__(self, char_list, decoder_type=DecoderType.BestPath, must_restore=False):
+    def __init__(self, decoder_type=DecoderType.BestPath, must_restore=False):
         """init model: add CNN, RNN and CTC and initialize TF"""
         self.dump = False
-        self.charList = char_list
+        self.charList = " !\"#&'()*+,-./0123456789:;?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
         self.decoderType = decoder_type
         self.mustRestore = must_restore
         self.snapID = 0
@@ -125,7 +125,7 @@ class Model:
             self.decoder = tf.compat.v1.nn.ctc_beam_search_decoder(inputs=self.ctcIn3dTBC, sequence_length=self.seqLen,
                                                          beam_width=50, merge_repeated=False)
         elif self.decoderType == DecoderType.WordBeamSearch:
-            # import compiled word beam search operation (see https://github.com/githubharald/CTCWordBeamSearch)
+            # import compiled word beam search operation
             word_beam_search_module = tf.compat.v1.load_op_library('TFWordBeamSearch.so')
 
             # prepare information about language (dictionary, characters in dataset, characters forming words)

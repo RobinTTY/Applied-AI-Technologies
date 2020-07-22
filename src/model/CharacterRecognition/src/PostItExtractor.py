@@ -31,8 +31,7 @@ class PostItExtractor:
     def __init__(self, debug_mode=False):
         os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
         tf.compat.v1.disable_eager_execution()
-        self.decoder_type = DecoderType.BestPath
-        self.model = Model(open('../model/charList.txt').read(), self.decoder_type, must_restore=True)
+        self.model = Model(DecoderType.BestPath, must_restore=True)
         self.debug_mode = debug_mode
 
     def image_to_post_its(self, image_path):
