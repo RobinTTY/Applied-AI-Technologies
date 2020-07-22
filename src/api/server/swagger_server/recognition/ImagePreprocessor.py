@@ -46,8 +46,8 @@ class ImagePreprocessor:
         return imcv
 
     @staticmethod
-    def get_color(img_path, rect):
-        img = Image.open(img_path).crop((rect[0], rect[1], rect[0] + rect[2], rect[1] + rect[3]))
+    def get_color(image, rect):
+        img = image.crop((rect[0], rect[1], rect[0] + rect[2], rect[1] + rect[3]))
 
         r = img.getchannel('R')
         g = img.getchannel('G')
@@ -102,10 +102,9 @@ class ImagePreprocessor:
         final_gray = cv.cvtColor(final_rgb, cv.COLOR_RGB2GRAY)
         return cv.resize(final_gray, (0, 0), fx=(1 / resize_factor), fy=(1 / resize_factor))
 
-    def find_post_its(self, image_path, resize_factor=2):
+    def find_post_its(self, image_input, resize_factor=2):
         """returns number of detected post-it's"""
-        img = Image.open(image_path)
-        arr = np.array(img)
+        arr = np.array(image_input)
 
         y_dim = arr.shape[0]
         x_dim = arr.shape[1]
@@ -130,7 +129,7 @@ class ImagePreprocessor:
         _, threshold = cv.threshold(image, 240, 255, cv.THRESH_BINARY_INV)
         contours, _ = cv.findContours(threshold, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
-        width, height = img.size
+        width, height = image_input.size
         count = 0
 
         post_its = []
@@ -138,7 +137,7 @@ class ImagePreprocessor:
             x, y, w, h = cv.boundingRect(contour)
             if ((width * height) / 999) < (w * h) < ((width * height) / 10):
                 x, y, w, h = (x * resize_factor, y * resize_factor, w * resize_factor, h * resize_factor)
-                post_it_file = img.crop((x, y, x + w, y + h))
+                post_it_file = image_input.crop((x, y, x + w, y + h))
                 post_it = PostItInternal(post_it_file, (x, y, w, h))
                 post_its.append(post_it)
                 count += 1

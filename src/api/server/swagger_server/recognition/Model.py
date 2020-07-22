@@ -123,7 +123,7 @@ class Model:
 
         # save model to file
         saver = tf.compat.v1.train.Saver(max_to_keep=1)
-        model_dir = '../model/'
+        model_dir = 'model/'
         # check if there is a saved model
         latest_snapshot = tf.compat.v1.train.latest_checkpoint(model_dir)
 

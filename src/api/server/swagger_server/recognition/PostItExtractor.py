@@ -1,8 +1,8 @@
-#import tensorflow as tf
-#from .ImagePreprocessor import ImagePreprocessor
-#from .Batch import Batch
-#from .Model import Model
-#from .PostItGroup import PostItGroup
+import tensorflow as tf
+from .ImagePreprocessor import ImagePreprocessor
+from .Batch import Batch
+from .Model import Model
+from .PostItGroup import PostItGroup
 import os
 import sys
 import time
@@ -34,15 +34,15 @@ class PostItExtractor:
         self.model = Model(must_restore=True)
         self.debug_mode = debug_mode
 
-    def image_to_post_its(self, image_path):
+    def image_to_post_its(self, image):
         pre_processor = ImagePreprocessor(self.debug_mode)
-        post_its = pre_processor.find_post_its(image_path)
+        post_its = pre_processor.find_post_its(image)
 
         for post_it in post_its:
             img = pre_processor.convert_image(post_it.file)
             post_it.file = img
             post_it.text = self.extract_text(self.model, post_it.file)
-            post_it.rgb = pre_processor.get_color(image_path, post_it.rect)
+            post_it.rgb = pre_processor.get_color(image, post_it.rect)
 
         return post_its
 
