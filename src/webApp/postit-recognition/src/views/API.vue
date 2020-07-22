@@ -30,7 +30,7 @@ export default {
     window.editor = SwaggerEditorBundle({
       dom_id: "#swagger-editor",
       url:
-        "https://raw.githubusercontent.com/RobinTTY/Applied-AI-Technologies/TeamB%40aai2020/src/api/server/swagger_server/swagger/swagger.yaml"
+        "https://raw.githubusercontent.com/RobinTTY/Applied-AI-Technologies/TeamB%40aai2020/doc/OpenApi/PostItRecognition.yaml"
     });
 
     // Hide the spinner
