@@ -5,6 +5,7 @@ from PIL import Image
 from PostIt import PostIt
 import numpy as np
 import cv2 as cv
+import time
 
 
 class ImagePreprocessor:
@@ -110,12 +111,16 @@ class ImagePreprocessor:
         x_dim = arr.shape[1]
         test_arr = np.zeros((y_dim, x_dim))
 
+        # this loop takes supaaaaa long
+        start = time.time()
         for y in range(y_dim):
             for x in range(x_dim):
                 r, g, b = arr[y][x]
 
                 if max(r, g, b) - min(r, g, b) < 20:
                     test_arr[y][x] = 255
+        end = time.time()
+        print(f"find post it loop: {end - start}")
 
         test_img = Image.fromarray(test_arr)
         test_img = test_img.convert('RGB')

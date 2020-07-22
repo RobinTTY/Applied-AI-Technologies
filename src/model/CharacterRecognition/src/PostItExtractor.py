@@ -5,13 +5,17 @@ from Model import Model, DecoderType
 from PostItGroup import PostItGroup
 import os
 import sys
+import time
 
 
 def main():
     extractor = PostItExtractor(debug_mode=False)
     try:
+        start = time.time()
         post_its = extractor.image_to_post_its("../data/colored/MultiplePostIts8.jpg")
         post_it_groups = extractor.group_post_its(post_its)
+        end = time.time()
+        print(f"program: {end - start}")
 
         for group in post_it_groups:
             print(group)
