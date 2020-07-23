@@ -106,13 +106,15 @@ class ImagePreprocessor:
         img = Image.open(image_path)
         arr = np.array(img)
 
+        compression = 10  # Check each n-th pixel only
+
         y_dim = arr.shape[0]
         x_dim = arr.shape[1]
-        test_arr = np.zeros((y_dim, x_dim))
+        test_arr = np.zeros((int(y_dim / compression), int(x_dim / compression)))
 
-        for y in range(y_dim):
-            for x in range(x_dim):
-                r, g, b = arr[y][x]
+        for y in range(int(y_dim / compression)):
+            for x in range(int(x_dim / compression)):
+                r, g, b = arr[compression * y][compression * x]
 
                 if max(r, g, b) - min(r, g, b) < 20:
                     test_arr[y][x] = 255
@@ -131,6 +133,12 @@ class ImagePreprocessor:
         post_its = []
         for contour in contours:
             x, y, w, h = cv.boundingRect(contour)
+
+            x = x * compression
+            y = y * compression
+            w = w * compression
+            h = h * compression
+
             if ((width * height) / 999) < (w * h) < ((width * height) / 10):
                 x, y, w, h = (x * resize_factor, y * resize_factor, w * resize_factor, h * resize_factor)
                 post_it_file = img.crop((x, y, x + w, y + h))
