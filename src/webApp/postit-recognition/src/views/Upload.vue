@@ -54,7 +54,7 @@
           >
             <b-card-body>
               <b-card-text>
-                <b-card-group deck class="mx-auto">
+                <b-card-group columns>
                   <b-card
                     v-for="postIt in postItGroup[1]"
                     :key="postIt.id"
@@ -145,9 +145,6 @@ export default {
           this.postItGroups = Array.from(
             this.groupBy(this.postIts, postIt => postIt.color.color_group)
           );
-          this.postItGroups.forEach(group => {
-            console.log(group);
-          });
           this.title = "Your results are ready!";
           this.done = true;
         });

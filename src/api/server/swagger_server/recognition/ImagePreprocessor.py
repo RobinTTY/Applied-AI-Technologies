@@ -105,11 +105,10 @@ class ImagePreprocessor:
     def find_post_its(self, image_input, resize_factor=2):
         """returns number of detected post-it's"""
         arr = np.array(image_input)
-
-        compression = 10  # Check each n-th pixel only
-
         y_dim = arr.shape[0]
         x_dim = arr.shape[1]
+        compression = max(1, int(y_dim * 0.0035))   # check each x pixel only
+        print(compression)
         test_arr = np.zeros((int(y_dim / compression), int(x_dim / compression)))
 
         for y in range(int(y_dim / compression)):
