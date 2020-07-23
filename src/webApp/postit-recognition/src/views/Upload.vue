@@ -83,7 +83,6 @@ export default {
       // Update page
       this.processing = true;
       this.title = "We are working on it...";
-      console.log(this.file);
 
       // send post request
       let formData = new FormData();
@@ -98,8 +97,6 @@ export default {
           }
         })
         .then(response => {
-          //console.log(response);
-          console.log(response.data);
           response.data.forEach(obj => this.postIts.push(obj));
           this.title = "Your results are ready!";
           this.done = true;
