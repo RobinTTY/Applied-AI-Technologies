@@ -2,9 +2,10 @@ from __future__ import division
 from __future__ import print_function
 
 from PIL import Image
-from PostIt import PostIt
+from PostItInternal import PostItInternal
 import numpy as np
 import cv2 as cv
+import time
 
 
 class ImagePreprocessor:
@@ -118,6 +119,7 @@ class ImagePreprocessor:
 
                 if max(r, g, b) - min(r, g, b) < 20:
                     test_arr[y][x] = 255
+        end = time.time()
 
         test_img = Image.fromarray(test_arr)
         test_img = test_img.convert('RGB')
@@ -142,7 +144,7 @@ class ImagePreprocessor:
             if ((width * height) / 999) < (w * h) < ((width * height) / 10):
                 x, y, w, h = (x * resize_factor, y * resize_factor, w * resize_factor, h * resize_factor)
                 post_it_file = img.crop((x, y, x + w, y + h))
-                post_it = PostIt(post_it_file, (x, y, w, h))
+                post_it = PostItInternal(post_it_file, (x, y, w, h))
                 post_its.append(post_it)
                 count += 1
 

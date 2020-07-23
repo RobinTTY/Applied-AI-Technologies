@@ -1,17 +1,21 @@
 import tensorflow as tf
 from ImagePreprocessor import ImagePreprocessor
 from Batch import Batch
-from Model import Model, DecoderType
+from Model import Model
 from PostItGroup import PostItGroup
 import os
 import sys
+import time
 
 
 def main():
     extractor = PostItExtractor(debug_mode=False)
     try:
+        start = time.time()
         post_its = extractor.image_to_post_its("../data/colored/MultiplePostIts8.jpg")
         post_it_groups = extractor.group_post_its(post_its)
+        end = time.time()
+        print(f"program: {end - start}")
 
         for group in post_it_groups:
             print(group)
@@ -27,8 +31,7 @@ class PostItExtractor:
     def __init__(self, debug_mode=False):
         os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
         tf.compat.v1.disable_eager_execution()
-        self.decoder_type = DecoderType.BestPath
-        self.model = Model(open('../model/charList.txt').read(), self.decoder_type, must_restore=True)
+        self.model = Model(must_restore=True)
         self.debug_mode = debug_mode
 
     def image_to_post_its(self, image_path):
