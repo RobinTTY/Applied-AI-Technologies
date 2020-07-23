@@ -4,6 +4,7 @@ from ..recognition.PostItExtractor import PostItExtractor
 from io import BytesIO
 from PIL import Image
 import connexion
+import json
 import uuid
 
 
@@ -31,6 +32,7 @@ def index_post_its(body, picture_link):  # noqa: E501
     # extract post its
     extractor = PostItExtractor(False)
     post_its = extractor.image_to_post_its(image)
+    extractor.group_post_its(post_its)
 
     # return post its
     return post_it_class_convert(post_its)
@@ -39,8 +41,17 @@ def index_post_its(body, picture_link):  # noqa: E501
 def post_it_class_convert(post_its):
     output = []
     for post in post_its:
-        obj = PostIt(str(uuid.uuid4()), post.text, "color", Coordinate(post.rect[0], post.rect[1]),
-                     post.rect[2], post.rect[3])
+        obj = PostIt(str(uuid.uuid4()), post.text, PostItColorCombination(post.rgb, post.color_grp).to_json(),
+                     Coordinate(post.rect[0], post.rect[1]), post.rect[2], post.rect[3])
         output.append(obj)
 
     return output
+
+
+class PostItColorCombination:
+    def __init__(self, color, color_grp):
+        self.color = color
+        self.color_group = color_grp
+
+    def to_json(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)

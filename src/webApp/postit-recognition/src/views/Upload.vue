@@ -32,21 +32,50 @@
         <b-button v-on:click="submitFile()" id="submit">Submit</b-button>
       </b-col>
     </b-row>
-    <b-row>
+    <b-row id="result-row">
       <b-col>
-        <h2 v-if="done">Your results</h2>
-        <b-card-group deck>
-          <b-card v-for="postIt in postIts" :key="postIt.id">
-            <b-card-text>{{ postIt.contents }}</b-card-text>
-            <template v-slot:footer>
-              <small class="text-muted"
-                >Position: x={{ postIt.coordinates.posX }} y={{
-                  postIt.coordinates.posY
-                }}
-              </small>
-            </template>
-          </b-card>
-        </b-card-group>
+        <h2 v-if="done" class="p-2 text-center">Your results</h2>
+        <b-card
+          no-body
+          class="mb-1"
+          v-for="(postItGroup, index) in postItGroups"
+          :key="postItGroup[0]"
+        >
+          <b-card-header header-tag="header" class="p-1" role="tab">
+            <b-button block v-b-toggle.accordion-1 variant="info"
+              >Group {{ index + 1 }}</b-button
+            >
+          </b-card-header>
+          <b-collapse
+            id="accordion-1"
+            visible
+            accordion="my-accordion"
+            role="tabpanel"
+          >
+            <b-card-body>
+              <b-card-text>
+                <b-card-group deck class="mx-auto">
+                  <b-card
+                    v-for="postIt in postItGroup[1]"
+                    :key="postIt.id"
+                    v-bind:style="{ backgroundColor: postIt.color.color }"
+                  >
+                    <b-card-text class="text-center">
+                      <b>{{ postIt.contents }}</b>
+                    </b-card-text>
+                    <template v-slot:footer>
+                      <small>
+                        Position: x={{ postIt.coordinates.posX }} y={{
+                          postIt.coordinates.posY
+                        }}
+                      </small>
+                    </template>
+                  </b-card>
+                </b-card-group>
+              </b-card-text>
+            </b-card-body>
+          </b-collapse>
+        </b-card>
       </b-col>
     </b-row>
   </b-container>
@@ -75,7 +104,10 @@ export default {
       // file upload
       file: null,
       baseServerUrl: "http://localhost:8090/RobinTTYTeam/AppliedAI/1.0.0",
-      postIts: []
+
+      // presentation
+      postIts: [],
+      postItGroups: []
     };
   },
   methods: {
@@ -96,11 +128,45 @@ export default {
             "Content-Type": "image/png"
           }
         })
+        // handle response
         .then(response => {
-          response.data.forEach(obj => this.postIts.push(obj));
+          response.data.forEach(obj => {
+            obj.color = JSON.parse(obj.color);
+
+            // format color property correctly
+            obj.color.color = this.decodeColorToRgb(obj.color.color);
+            obj.color.color_group = this.decodeColorToRgb(
+              obj.color.color_group
+            );
+            this.postIts.push(obj);
+          });
+
+          // group post-its by color
+          this.postItGroups = Array.from(
+            this.groupBy(this.postIts, postIt => postIt.color.color_group)
+          );
+          this.postItGroups.forEach(group => {
+            console.log(group);
+          });
           this.title = "Your results are ready!";
           this.done = true;
         });
+    },
+    decodeColorToRgb(colorArray) {
+      return `rgb(${colorArray[0]},${colorArray[1]},${colorArray[2]})`;
+    },
+    groupBy(list, keyGetter) {
+      const map = new Map();
+      list.forEach(item => {
+        const key = keyGetter(item);
+        const collection = map.get(key);
+        if (!collection) {
+          map.set(key, [item]);
+        } else {
+          collection.push(item);
+        }
+      });
+      return map;
     }
   }
 };
@@ -121,6 +187,10 @@ export default {
 
 #results {
   font-size: 20pt;
+}
+
+#result-row {
+  padding-bottom: 2%;
 }
 
 @media (max-width: 768px) {

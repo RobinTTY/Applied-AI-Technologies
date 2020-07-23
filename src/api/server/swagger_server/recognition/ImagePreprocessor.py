@@ -106,20 +106,18 @@ class ImagePreprocessor:
         """returns number of detected post-it's"""
         arr = np.array(image_input)
 
+        compression = 10  # Check each n-th pixel only
+
         y_dim = arr.shape[0]
         x_dim = arr.shape[1]
-        test_arr = np.zeros((y_dim, x_dim))
+        test_arr = np.zeros((int(y_dim / compression), int(x_dim / compression)))
 
-        # this loop takes supaaaaa long
-        start = time.time()
-        for y in range(y_dim):
-            for x in range(x_dim):
-                r, g, b = arr[y][x]
+        for y in range(int(y_dim / compression)):
+            for x in range(int(x_dim / compression)):
+                r, g, b = arr[compression * y][compression * x]
 
                 if max(r, g, b) - min(r, g, b) < 20:
                     test_arr[y][x] = 255
-        end = time.time()
-        print(f"find post it loop: {end - start}")
 
         test_img = Image.fromarray(test_arr)
         test_img = test_img.convert('RGB')
@@ -135,6 +133,12 @@ class ImagePreprocessor:
         post_its = []
         for contour in contours:
             x, y, w, h = cv.boundingRect(contour)
+
+            x = x * compression
+            y = y * compression
+            w = w * compression
+            h = h * compression
+
             if ((width * height) / 999) < (w * h) < ((width * height) / 10):
                 x, y, w, h = (x * resize_factor, y * resize_factor, w * resize_factor, h * resize_factor)
                 post_it_file = image_input.crop((x, y, x + w, y + h))
@@ -143,20 +147,3 @@ class ImagePreprocessor:
                 count += 1
 
         return post_its
-
-    # not used atm
-    @staticmethod
-    def find_words():
-        img = cv.imread('../data/input2.jpg', 0)
-        cv.threshold(img, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU, img)
-
-        contours, image = cv.findContours(img, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
-        for c in contours:
-            # get the bounding rect
-            x, y, w, h = cv.boundingRect(c)
-            # draw a white rectangle to visualize the bounding rect
-            cv.rectangle(img, (x, y), (x + w, y + h), 255, 1)
-
-        cv.drawContours(img, contours, -1, (255, 255, 0), 1)
-
-        cv.imwrite("../data/output.png", img)

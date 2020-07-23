@@ -5,7 +5,6 @@ from PIL import Image
 from PostItInternal import PostItInternal
 import numpy as np
 import cv2 as cv
-import time
 
 
 class ImagePreprocessor:
@@ -119,7 +118,6 @@ class ImagePreprocessor:
 
                 if max(r, g, b) - min(r, g, b) < 20:
                     test_arr[y][x] = 255
-        end = time.time()
 
         test_img = Image.fromarray(test_arr)
         test_img = test_img.convert('RGB')
