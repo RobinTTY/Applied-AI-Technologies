@@ -2,7 +2,7 @@
 
 The webapp that demonstrates the API usage.
 
-![Webapp](resources/Website.png)
+![Webapp](resources/Website.PNG)
 
 ## Project setup
 
