@@ -1,4 +1,4 @@
-# Swagger generated server
+# Post-it API Server
 
 ## Overview
 
