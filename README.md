@@ -20,3 +20,7 @@ Thanks to our contributors:
 </br>
 [D. Lagamtzis](https://github.com/DimiHMC)</br>
 [Peltzfa](https://github.com/peltzefa/)
+
+## Post-it Recognition
+
+Please refer to the src/ directory for further instructions on how to setup the service.
